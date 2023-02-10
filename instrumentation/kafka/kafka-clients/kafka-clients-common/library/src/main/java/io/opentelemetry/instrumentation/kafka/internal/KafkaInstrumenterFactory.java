@@ -112,8 +112,8 @@ public final class KafkaInstrumenterFactory {
             MessagingSpanNameExtractor.create(getter, operation))
         .addAttributesExtractor(
             buildMessagingAttributesExtractor(getter, operation, capturedHeaders))
-        .setErrorCauseExtractor(errorCauseExtractor)
-        .setEnabled(messagingReceiveInstrumentationEnabled)
+        .setErrorCauseExtractor(errorCauseExtractor) // TODO: add
+        .setEnabled(messagingReceiveInstrumentationEnabled) // TODO: add
         .buildInstrumenter(SpanKindExtractor.alwaysConsumer());
   }
 
@@ -161,7 +161,7 @@ public final class KafkaInstrumenterFactory {
             instrumentationName,
             MessagingSpanNameExtractor.create(getter, operation))
         .addAttributesExtractor(
-            buildMessagingAttributesExtractor(getter, operation, capturedHeaders))
+            buildMessagingAttributesExtractor(getter, operation, capturedHeaders)) // dummy
         .addSpanLinksExtractor(
             new KafkaBatchProcessSpanLinksExtractor(
                 openTelemetry.getPropagators().getTextMapPropagator()))

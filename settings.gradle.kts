@@ -480,3 +480,4 @@ include(":instrumentation:wicket-8.0:javaagent")
 // benchmark
 include(":benchmark-overhead-jmh")
 include(":benchmark-jfr-analyzer")
+include(":benchmark-overhead")

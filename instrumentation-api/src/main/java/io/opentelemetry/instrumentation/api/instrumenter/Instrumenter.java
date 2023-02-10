@@ -14,6 +14,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.context.GlobalContextsRegistry;
+import io.opentelemetry.instrumentation.api.context.MutableSpanEndProcessorRegistry;
 import io.opentelemetry.instrumentation.api.internal.SupportabilityMetrics;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -193,7 +194,7 @@ public class Instrumenter<REQUEST, RESPONSE> {
             .put(AttributeKey.stringKey("span_name"), spanName)
             .build();
     // Apply global context customizers
-    for (ContextCustomizer<Object> globalContextCustomizer :
+    for (GlobalContextCustomizer globalContextCustomizer :
         GlobalContextsRegistry.getGlobalContexts()) {
       context = globalContextCustomizer.onStart(context, request, extendedAttributes);
     }
@@ -250,6 +251,9 @@ public class Instrumenter<REQUEST, RESPONSE> {
 
     SpanStatusBuilder spanStatusBuilder = new SpanStatusBuilderImpl(span);
     spanStatusExtractor.extract(spanStatusBuilder, request, response, error);
+
+    MutableSpanEndProcessorRegistry.getMutableSpanEndProcessors()
+        .forEach(msep -> msep.onEnd(context, span));
 
     if (endTime != null) {
       span.end(endTime);

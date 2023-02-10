@@ -34,10 +34,16 @@ public final class HttpSpanNameExtractor<REQUEST> implements SpanNameExtractor<R
   @Override
   public String extract(REQUEST request) {
     String route = extractRoute(request);
-    if (route != null) {
-      return route;
-    }
     String method = getter.method(request);
+    if (route != null) {
+      if (method != null) {
+        return method + "_" + route;
+      }
+      else {
+        return route;
+      }
+    }
+
     if (method != null) {
       return "HTTP " + method;
     }

@@ -67,6 +67,7 @@ public class OverheadTests {
         .forEach(
             agent -> {
               try {
+                System.out.println("Before runAppOnce for: " + config.getName() + ", " + agent.getName());
                 runAppOnce(config, agent);
               } catch (Exception e) {
                 fail("Unhandled exception in " + config.getName(), e);
@@ -78,6 +79,7 @@ public class OverheadTests {
   }
 
   void runAppOnce(TestConfig config, Agent agent) throws Exception {
+    System.out.println("runAppOnce for: " + config.getName() + ", " + agent.getName());
     GenericContainer<?> postgres = new PostgresContainer(NETWORK).build();
     postgres.start();
 
@@ -87,12 +89,18 @@ public class OverheadTests {
     petclinic.start();
     writeStartupTimeFile(agent, start);
 
+    System.out.println("Pet clinic started======================= ");
+
     if (config.getWarmupSeconds() > 0) {
       doWarmupPhase(config, petclinic);
     }
 
+    System.out.println("warm up done======================= ");
+
     long testStart = System.currentTimeMillis();
     startRecording(agent, petclinic);
+
+    System.out.println("Start load======================= ");
 
     GenericContainer<?> k6 = new K6Container(NETWORK, agent, config, namingConventions).build();
     k6.start();
