@@ -1,2 +1,20 @@
 Comparing source compatibility of  against 
-No changes.
++++  NEW CLASS: PUBLIC(+) FINAL(+) io.opentelemetry.instrumentation.api.context.GlobalContextsRegistry  (not serializable)
+	+++  CLASS FILE FORMAT VERSION: 52.0 <- n.a.
+	+++  NEW SUPERCLASS: java.lang.Object
+	+++  NEW METHOD: PUBLIC(+) STATIC(+) java.util.List getGlobalContexts()
+	+++  NEW METHOD: PUBLIC(+) STATIC(+) void register(io.opentelemetry.instrumentation.api.instrumenter.GlobalContextCustomizer)
++++  NEW CLASS: PUBLIC(+) FINAL(+) io.opentelemetry.instrumentation.api.context.MutableSpanEndProcessorRegistry  (not serializable)
+	+++  CLASS FILE FORMAT VERSION: 52.0 <- n.a.
+	+++  NEW SUPERCLASS: java.lang.Object
+	+++  NEW METHOD: PUBLIC(+) STATIC(+) java.util.List getMutableSpanEndProcessors()
+	+++  NEW METHOD: PUBLIC(+) STATIC(+) void register(io.opentelemetry.instrumentation.api.instrumenter.MutableSpanEndProcessor)
++++  NEW INTERFACE: PUBLIC(+) ABSTRACT(+) io.opentelemetry.instrumentation.api.instrumenter.GlobalContextCustomizer  (not serializable)
+	+++  CLASS FILE FORMAT VERSION: 52.0 <- n.a.
+	+++  NEW SUPERCLASS: java.lang.Object
+	+++  NEW METHOD: PUBLIC(+) ABSTRACT(+) io.opentelemetry.context.Context onStart(io.opentelemetry.context.Context, java.lang.Object, io.opentelemetry.api.common.Attributes)
+	+++  NEW ANNOTATION: java.lang.FunctionalInterface
++++  NEW INTERFACE: PUBLIC(+) ABSTRACT(+) io.opentelemetry.instrumentation.api.instrumenter.MutableSpanEndProcessor  (not serializable)
+	+++  CLASS FILE FORMAT VERSION: 52.0 <- n.a.
+	+++  NEW SUPERCLASS: java.lang.Object
+	+++  NEW METHOD: PUBLIC(+) ABSTRACT(+) void onEnd(io.opentelemetry.context.Context, io.opentelemetry.api.trace.Span)

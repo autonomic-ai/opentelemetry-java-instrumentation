@@ -6,11 +6,15 @@
 package io.opentelemetry.instrumentation.api.instrumenter;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.instrumentation.api.context.GlobalContextsRegistry;
+import io.opentelemetry.instrumentation.api.context.MutableSpanEndProcessorRegistry;
 import io.opentelemetry.instrumentation.api.internal.SupportabilityMetrics;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -159,8 +163,8 @@ public class Instrumenter<REQUEST, RESPONSE> {
 
   private Context doStart(Context parentContext, REQUEST request, @Nullable Instant startTime) {
     SpanKind spanKind = spanKindExtractor.extract(request);
-    SpanBuilder spanBuilder =
-        tracer.spanBuilder(spanNameExtractor.extract(request)).setSpanKind(spanKind);
+    String spanName = spanNameExtractor.extract(request);
+    SpanBuilder spanBuilder = tracer.spanBuilder(spanName).setSpanKind(spanKind);
 
     if (startTime != null) {
       spanBuilder.setStartTimestamp(startTime);
@@ -182,6 +186,17 @@ public class Instrumenter<REQUEST, RESPONSE> {
     // context, and so that their additions to the context will be visible to span processors
     for (ContextCustomizer<? super REQUEST> contextCustomizer : contextCustomizers) {
       context = contextCustomizer.onStart(context, request, attributes);
+    }
+
+    Attributes extendedAttributes =
+        Attributes.builder()
+            .putAll(attributes)
+            .put(AttributeKey.stringKey("span_name"), spanName)
+            .build();
+    // Apply global context customizers
+    for (GlobalContextCustomizer globalContextCustomizer :
+        GlobalContextsRegistry.getGlobalContexts()) {
+      context = globalContextCustomizer.onStart(context, request, extendedAttributes);
     }
 
     boolean localRoot = LocalRootSpan.isLocalRoot(context);
@@ -236,6 +251,9 @@ public class Instrumenter<REQUEST, RESPONSE> {
 
     SpanStatusBuilder spanStatusBuilder = new SpanStatusBuilderImpl(span);
     spanStatusExtractor.extract(spanStatusBuilder, request, response, error);
+
+    MutableSpanEndProcessorRegistry.getMutableSpanEndProcessors()
+        .forEach(msep -> msep.onEnd(context, span));
 
     if (endTime != null) {
       span.end(endTime);

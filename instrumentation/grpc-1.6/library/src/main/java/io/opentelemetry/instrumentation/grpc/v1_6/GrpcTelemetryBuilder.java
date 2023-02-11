@@ -131,16 +131,17 @@ public final class GrpcTelemetryBuilder {
 
   /** Returns a new {@link GrpcTelemetry} with the settings of this {@link GrpcTelemetryBuilder}. */
   public GrpcTelemetry build() {
-    SpanNameExtractor<GrpcRequest> originalSpanNameExtractor = new GrpcSpanNameExtractor();
+    SpanNameExtractor<GrpcRequest> serverNameExtractor = new GrpcServerSpanNameExtractor();
+    SpanNameExtractor<GrpcRequest> clientNameExtractor = new GrpcClientSpanNameExtractor();
 
-    SpanNameExtractor<? super GrpcRequest> clientSpanNameExtractor = originalSpanNameExtractor;
+    SpanNameExtractor<? super GrpcRequest> clientSpanNameExtractor = clientNameExtractor;
     if (clientSpanNameExtractorTransformer != null) {
-      clientSpanNameExtractor = clientSpanNameExtractorTransformer.apply(originalSpanNameExtractor);
+      clientSpanNameExtractor = clientSpanNameExtractorTransformer.apply(clientNameExtractor);
     }
 
-    SpanNameExtractor<? super GrpcRequest> serverSpanNameExtractor = originalSpanNameExtractor;
+    SpanNameExtractor<? super GrpcRequest> serverSpanNameExtractor = serverNameExtractor;
     if (serverSpanNameExtractorTransformer != null) {
-      serverSpanNameExtractor = serverSpanNameExtractorTransformer.apply(originalSpanNameExtractor);
+      serverSpanNameExtractor = serverSpanNameExtractorTransformer.apply(serverNameExtractor);
     }
 
     InstrumenterBuilder<GrpcRequest, Status> clientInstrumenterBuilder =
